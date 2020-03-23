@@ -26,8 +26,10 @@ namespace HighScoreAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(options => options.UseCosmos(Configuration["CosmosDB:AccountEndpoint"],
-                Configuration["CosmosDB:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
+            // services.AddDbContext<DataContext>(options => options.UseCosmos(Configuration["CosmosDB:AccountEndpoint"],
+            //     Configuration["CosmosDB:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
+            services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
+
             services.AddControllers();
 
         }
