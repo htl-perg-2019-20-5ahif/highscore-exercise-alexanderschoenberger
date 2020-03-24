@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HighScoreAPI.Data;
+using System.Net.Http;
+using System.Net;
+using Newtonsoft.Json.Linq;
 
 namespace HighScoreAPI.Controllers
 {
@@ -22,7 +25,7 @@ namespace HighScoreAPI.Controllers
 
         // GET: api/HighScores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<HighScore>>> GetHighScores()
+        public IEnumerable<HighScore> GetHighScores()
         {
             return _context.HighScores.OrderByDescending(h => h.Score).ToList();
         }
@@ -59,11 +62,24 @@ namespace HighScoreAPI.Controllers
                     return BadRequest("Not a highScore");
                 }
             }
-            await _context.HighScores.AddAsync(highScore);
+            _context.HighScores.Add(highScore);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetHighScore", new { id = highScore.HighScoreId }, highScore);
         }
+        public static bool ReCaptchaPassed(string gRecaptchaResponse)
+        {
+            HttpClient httpClient = new HttpClient();
+            var res = httpClient.GetAsync($"https://www.google.com/recaptcha/api/siteverify?6LfetuMUAAAAALher4htFllDm9IaROp6FYqfT9GW").Result;
+            if (res.StatusCode != HttpStatusCode.OK)
+                return false;
 
+            string JSONres = res.Content.ReadAsStringAsync().Result;
+            dynamic JSONdata = JObject.Parse(JSONres);
+            if (JSONdata.success != "true")
+                return false;
+
+            return true;
+        }
     }
 }

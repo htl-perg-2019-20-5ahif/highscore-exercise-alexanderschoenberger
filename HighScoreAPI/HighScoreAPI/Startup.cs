@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using HighScoreAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using HighScoreAPI.Controllers;
 
 namespace HighScoreAPI
 {
@@ -20,18 +21,29 @@ namespace HighScoreAPI
         {
             Configuration = configuration;
         }
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         public IConfiguration Configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddDbContext<DataContext>(options => options.UseCosmos(Configuration["CosmosDB:AccountEndpoint"],
-            //     Configuration["CosmosDB:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
-            services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
+            //  services.AddEntityFrameworkCosmosSql();
+            // services.AddScoped<DbContext, DataContext>();
+            services.AddDbContext<DataContext>(options =>
+            options.UseCosmos(Configuration["CosmosDb:AccountEndpoint"],
+            Configuration["CosmosDb:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
+            //services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("http://localhost:8080");
+                });
+            });
             services.AddControllers();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +53,7 @@ namespace HighScoreAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseRouting();
 
