@@ -17,28 +17,13 @@ namespace HighScoreAPI.Data
         {
             //Configuration = configuration;
         }
-        public DataContext(IConfiguration configuration)
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            Configuration = configuration;
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasDefaultContainer("HighScores");
+            modelBuilder.Entity<HighScore>().HasNoDiscriminator();
         }
-
-        public IConfiguration Configuration;
-
-        /*   protected override void OnModelCreating(ModelBuilder modelBuilder)
-           {
-               modelBuilder.Entity<HighScore>();
-               var highscore = modelBuilder.Entity<HighScore>().Metadata;
-               highscore.CosmosSql().CollectionName = nameof(HighScore);
-           }*/
-
-        /*   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-           {
-               optionsBuilder.UseCosmos(Configuration["CosmosDB:AccountEndpoint"],
-        Configuration["CosmosDB:AccountKey"], Configuration["CosmosDB:DatabaseName"],
-    options =>
-    {
-        options.ExecutionStrategy(d => new CosmosExecutionStrategy(d));
-    });
-           }*/
     }
 }

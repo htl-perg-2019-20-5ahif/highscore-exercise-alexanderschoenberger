@@ -28,8 +28,6 @@ namespace HighScoreAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //  services.AddEntityFrameworkCosmosSql();
-            // services.AddScoped<DbContext, DataContext>();
             services.AddDbContext<DataContext>(options =>
             options.UseCosmos(Configuration["CosmosDb:AccountEndpoint"],
             Configuration["CosmosDb:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
@@ -49,6 +47,8 @@ namespace HighScoreAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            UpdateDatabaseAsync(app).Wait();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -63,6 +63,16 @@ namespace HighScoreAPI
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private async Task UpdateDatabaseAsync(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DataContext>();
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
         }
     }
 }

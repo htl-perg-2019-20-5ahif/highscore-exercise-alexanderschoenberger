@@ -12,7 +12,7 @@ namespace HighScoreAPI.Data
     {
         [JsonProperty(PropertyName = "highscoreid")]
         [Key]
-        public Guid HighScoreId { get; set; }
+        public Guid HighScoreId { get; set; } = Guid.NewGuid();
 
         [Required]
         [JsonProperty(PropertyName = "user")]
