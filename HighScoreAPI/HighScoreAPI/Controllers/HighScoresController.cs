@@ -48,7 +48,19 @@ namespace HighScoreAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<HighScore>> PostHighScore(HighScore highScore)
+        public async Task<ActionResult<HighScore>> PostHighScore(Send send)
+        {
+            if (ReCaptchaPassed(send.captcha))
+            {
+                return await AddHighScore(send.HighScore);
+            }
+            else
+            {
+                return BadRequest("You are a bot!");
+            }
+        }
+
+        public async Task<ActionResult<HighScore>> AddHighScore(HighScore highScore)
         {
             if (_context.HighScores.Count() >= 10)
             {
@@ -62,15 +74,20 @@ namespace HighScoreAPI.Controllers
                     return BadRequest("Not a highScore");
                 }
             }
+            if (highScore.Score <= 0)
+            {
+                return BadRequest("Not a highScore");
+            }
             _context.HighScores.Add(highScore);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetHighScore", new { id = highScore.HighScoreId }, highScore);
         }
+
         public static bool ReCaptchaPassed(string gRecaptchaResponse)
         {
             HttpClient httpClient = new HttpClient();
-            var res = httpClient.GetAsync($"https://www.google.com/recaptcha/api/siteverify?6LfetuMUAAAAALher4htFllDm9IaROp6FYqfT9GW").Result;
+            var res = httpClient.GetAsync($"https://www.google.com/recaptcha/api/siteverify?secret=6Le-wOMUAAAAAIRYo4DRJvTKsSDJJz05-NjCtXDn&response=" + gRecaptchaResponse).Result;
             if (res.StatusCode != HttpStatusCode.OK)
                 return false;
 

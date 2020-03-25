@@ -33,14 +33,15 @@ namespace HighScoreAPI
             Configuration["CosmosDb:AccountKey"], Configuration["CosmosDB:DatabaseName"]));
             //services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy(MyAllowSpecificOrigins,
-                builder =>
-                {
-                    builder.WithOrigins("http://localhost:8080");
-                });
-            });
+            /* services.AddCors(options =>
+             {
+                 options.AddPolicy(MyAllowSpecificOrigins,
+                 builder =>
+                 {
+                     builder.WithOrigins("http://localhost:8080");
+                     builder.AllowAnyHeader();
+                 });
+             });*/
             services.AddControllers();
         }
 

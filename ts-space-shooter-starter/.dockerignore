@@ -1,0 +1,6 @@
+*.log
+*.http
+.vs
+nbproject
+node_modules
+dist
