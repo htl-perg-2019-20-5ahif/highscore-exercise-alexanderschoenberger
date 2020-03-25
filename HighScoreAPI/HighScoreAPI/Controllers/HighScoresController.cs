@@ -84,6 +84,7 @@ namespace HighScoreAPI.Controllers
             return CreatedAtAction("GetHighScore", new { id = highScore.HighScoreId }, highScore);
         }
 
+
         public static bool ReCaptchaPassed(string gRecaptchaResponse)
         {
             HttpClient httpClient = new HttpClient();
