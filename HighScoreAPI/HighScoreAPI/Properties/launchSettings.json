@@ -19,7 +19,7 @@
     },
     "HighScoreAPI": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "api/highscores",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

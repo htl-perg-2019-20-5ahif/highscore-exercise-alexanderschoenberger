@@ -48,29 +48,36 @@ namespace HighScoreAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<HighScore>> PostHighScore(HighScore highScore)
+        public async Task<ActionResult<HighScore>> PostHighScore(Send send)
         {
-            if (_context.HighScores.Count() >= 10)
+            if (ReCaptchaPassed(send.captcha))
             {
-                var lastHighscore = _context.HighScores.OrderByDescending(h => h.Score).Last();
-                if (lastHighscore.Score < highScore.Score)
+                if (_context.HighScores.Count() >= 10)
                 {
-                    _context.HighScores.Remove(lastHighscore);
+                    var lastHighscore = _context.HighScores.OrderByDescending(h => h.Score).Last();
+                    if (lastHighscore.Score < send.HighScore.Score)
+                    {
+                        _context.HighScores.Remove(lastHighscore);
+                    }
+                    else
+                    {
+                        return BadRequest("Not a highScore");
+                    }
                 }
-                else
-                {
-                    return BadRequest("Not a highScore");
-                }
-            }
-            _context.HighScores.Add(highScore);
-            await _context.SaveChangesAsync();
+                _context.HighScores.Add(send.HighScore);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetHighScore", new { id = highScore.HighScoreId }, highScore);
+                return CreatedAtAction("GetHighScore", new { id = send.HighScore.HighScoreId }, send.HighScore);
+            }
+            else
+            {
+                return BadRequest("You are a bot!");
+            }
         }
         public static bool ReCaptchaPassed(string gRecaptchaResponse)
         {
             HttpClient httpClient = new HttpClient();
-            var res = httpClient.GetAsync($"https://www.google.com/recaptcha/api/siteverify?6LfetuMUAAAAALher4htFllDm9IaROp6FYqfT9GW").Result;
+            var res = httpClient.GetAsync($"https://www.google.com/recaptcha/api/siteverify?secret=6Le-wOMUAAAAAIRYo4DRJvTKsSDJJz05-NjCtXDn&response=" + gRecaptchaResponse).Result;
             if (res.StatusCode != HttpStatusCode.OK)
                 return false;
 

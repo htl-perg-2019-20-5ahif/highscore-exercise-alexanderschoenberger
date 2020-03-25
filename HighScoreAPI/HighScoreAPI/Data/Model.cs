@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace HighScoreAPI.Data
 {
+    public class Send
+    {
+        public HighScore HighScore { get; set; }
+        public string captcha { get; set; }
+    }
+
     public class HighScore
     {
         [JsonProperty(PropertyName = "highscoreid")]
